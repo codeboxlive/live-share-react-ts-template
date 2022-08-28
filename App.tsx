@@ -20,6 +20,8 @@ export default function App(): JSX.Element {
   // Setup media synchronizer
   useEffect(() => {
     if (initRef.current || !videoElementRef.current) return;
+    videoElementRef.current.src =
+      "https://storage.googleapis.com/media-session/big-buck-bunny/trailer.mov";
     initRef.current = true;
     // Join container on app load
     async function start(): Promise<void> {
@@ -27,7 +29,6 @@ export default function App(): JSX.Element {
       // with the Codebox Live application using window post messages. This is used
       // to authenticate a Fluid container when testing this app in a sandbox.
       await CodeboxLive.initialize();
-
       // Define container schema
       const schema = {
         initialObjects: {
@@ -45,6 +46,8 @@ export default function App(): JSX.Element {
       const mediaSynchronizer = mediaSession.synchronize(
         videoElementRef.current!
       );
+      // Start listening to group playback state changes
+      await mediaSession.initialize();
       setSynchronizer(mediaSynchronizer);
     }
     start().catch((error: any) => console.error(error));
@@ -98,22 +101,18 @@ export default function App(): JSX.Element {
 
   return (
     <div>
-      {synchronizer && (
-        <>
-          <Header />
-          <video
-            id="player"
-            ref={videoElementRef}
-            poster="https://images4.alphacoders.com/247/247356.jpg"
-            height={9 * 40}
-            width={16 * 40}
-          />
-          <button onClick={play}>{"Play"}</button>
-          <button onClick={pause}>{"Pause"}</button>
-          <button onClick={startOver}>{"Start Over"}</button>
-        </>
-      )}
-      {!synchronizer && <div>{"Loading..."}</div>}
+      <Header />
+      <video
+        id="player"
+        ref={videoElementRef}
+        poster="https://images4.alphacoders.com/247/247356.jpg"
+        height={9 * 40}
+        width={16 * 40}
+      />
+      <button onClick={play}>{"Play"}</button>
+      <button onClick={pause}>{"Pause"}</button>
+      <button onClick={startOver}>{"Start Over"}</button>
+      {!synchronizer && <div>{"Loading"}</div>}
     </div>
   );
 }
