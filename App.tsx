@@ -3,14 +3,15 @@ import { IFluidContainer } from "@fluidframework/fluid-static";
 // Not intended for use outside of a Codebox Live sandbox
 import { CodeboxLive } from "@codeboxlive/extensions-core";
 // In production, import AzureClient from "@fluidframework/azure-client"
-import { CodeboxLiveFluidClient } from "@codeboxlive/extensions-fluid";
+import { CodeboxLiveHost } from "@codeboxlive/extensions-fluid";
 import Header from "./Header";
 import {
-  EphemeralMediaSession,
+  LiveMediaSession,
   IMediaPlayerSynchronizerEvent,
   MediaPlayerSynchronizer,
   MediaPlayerSynchronizerEvents,
 } from "@microsoft/live-share-media";
+import { LiveShareClient } from "@microsoft/live-share";
 
 export default function App(): JSX.Element {
   const initRef = useRef<boolean>(false);
@@ -32,17 +33,18 @@ export default function App(): JSX.Element {
       // Define container schema
       const schema = {
         initialObjects: {
-          mediaSession: EphemeralMediaSession,
+          mediaSession: LiveMediaSession,
         },
       };
       // Define container callback for when container is first created
       const onFirstInitialize = (container: IFluidContainer) => {
         // Setup any initial state here
       };
-      const client = new CodeboxLiveFluidClient();
+      const host = new CodeboxLiveHost();
+      const client = new LiveShareClient(host);
       const results = await client.joinContainer(schema, onFirstInitialize);
       const mediaSession = results.container.initialObjects
-        .mediaSession as EphemeralMediaSession;
+        .mediaSession as LiveMediaSession;
       const mediaSynchronizer = mediaSession.synchronize(
         videoElementRef.current!
       );
